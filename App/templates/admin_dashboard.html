@@ -1,0 +1,87 @@
+{% extends 'admin_base.html' %}
+
+{% block topbar_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-section active" id="dashboard">
+    <div class="section-header">
+        <h2 class="section-title">Overview</h2>
+    </div>
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-title">Total Users</div>
+            <div class="metric-value">1,248</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Pending Requests</div>
+            <div class="metric-value">12</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Items Returned</div>
+            <div class="metric-value">384</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Active Blog Posts</div>
+            <div class="metric-value">6</div>
+        </div>
+    </div>
+
+    <div class="section-header" style="margin-top: 3rem;">
+        <h2 class="section-title">Registered Users</h2>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Join Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>John Doe</td>
+                    <td>john@example.com</td>
+                    <td>User</td>
+                    <td>Sep 1, 2026</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-icon btn-warning" title="Ban User">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                            </button>
+                            <button class="btn-icon btn-reject" title="Remove User">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Admin User</td>
+                    <td>admin@lostfind.com</td>
+                    <td>Admin</td>
+                    <td>Jan 1, 2026</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Sarah Jenkins</td>
+                    <td>sarah@example.com</td>
+                    <td>User</td>
+                    <td>Oct 5, 2026</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-icon btn-warning" title="Ban User">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                            </button>
+                            <button class="btn-icon btn-reject" title="Remove User">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

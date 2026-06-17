@@ -15,5 +15,14 @@ def feedback(request):
 def blog(request):
     return render(request, 'blog.html')
 
-def admin_page(request):
-    return render(request, 'admin.html')
+def admin_dashboard(request):
+    return render(request, 'admin_dashboard.html')
+
+def admin_requests(request):
+    return render(request, 'admin_requests.html')
+
+def admin_blog(request):
+    return render(request, 'admin_blog.html')
+
+def admin_gallery(request):
+    return render(request, 'admin_gallery.html')

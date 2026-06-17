@@ -1,0 +1,90 @@
+{% extends 'admin_base.html' %}
+
+{% block topbar_title %}Blog Posts{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-section active" id="blog">
+    <div class="section-header">
+        <h2 class="section-title">Blog Posts</h2>
+        <button class="btn btn-primary" id="btn-create-blog">+ Create New Post</button>
+    </div>
+    <div class="grid-view" id="blog-grid">
+        <div class="card">
+            <div class="card-img">🖼️</div>
+            <div class="card-body">
+                <div class="card-title">How to keep your items safe</div>
+                <div class="card-meta">Published on Oct 10, 2026</div>
+                <button class="btn btn-outline" style="width:100%;">Edit Post</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-img">🖼️</div>
+            <div class="card-body">
+                <div class="card-title">Community Spotlight: Sarah's Story</div>
+                <div class="card-meta">Published on Oct 1, 2026</div>
+                <button class="btn btn-outline" style="width:100%;">Edit Post</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Create Blog Modal -->
+<div class="modal-overlay" id="blog-modal">
+    <div class="modal-content">
+        <button class="modal-close" data-dismiss="modal">&times;</button>
+        <div class="modal-header">
+            <h2>Create Blog Post</h2>
+        </div>
+        <form id="blog-form">
+            <div class="form-group">
+                <label>Post Title</label>
+                <input type="text" placeholder="Enter title..." required>
+            </div>
+            <div class="form-group">
+                <label>Cover Image</label>
+                <input type="file" accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <label>Content</label>
+                <textarea placeholder="Write your post here..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; padding:1rem; margin-top:1rem;">Publish Post</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const blogModal = document.getElementById('blog-modal');
+        const closeBtns = document.querySelectorAll('.modal-close');
+
+        if (document.getElementById('btn-create-blog')) {
+            document.getElementById('btn-create-blog').addEventListener('click', () => {
+                blogModal.classList.add('active');
+            });
+        }
+
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                blogModal.classList.remove('active');
+            });
+        });
+
+        window.addEventListener("click", (e) => {
+            if (e.target === blogModal) blogModal.classList.remove('active');
+        });
+
+        const blogForm = document.getElementById('blog-form');
+        if (blogForm) {
+            blogForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                blogModal.classList.remove('active');
+                if (window.showNotification) showNotification("Blog post published successfully.");
+                e.target.reset();
+            });
+        }
+    });
+</script>
+{% endblock %}
