@@ -1,0 +1,92 @@
+{% extends 'admin_base.html' %}
+
+{% block topbar_title %}Requests Moderation{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-section active" id="requests">
+    <div class="section-header">
+        <h2 class="section-title">Pending Requests</h2>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Type</th>
+                    <th>Item Name</th>
+                    <th>Date Submitted</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="request-row">
+                    <td>john@example.com</td>
+                    <td><span class="badge lost">Lost</span></td>
+                    <td>Honda Car Keys</td>
+                    <td>Oct 12, 2026</td>
+                    <td><span class="badge pending">Pending</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-icon btn-accept" title="Accept">✓</button>
+                            <button class="btn-icon btn-reject" title="Reject">✕</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="request-row">
+                    <td>sarah@example.com</td>
+                    <td><span class="badge found">Found</span></td>
+                    <td>Brown Leather Wallet</td>
+                    <td>Oct 11, 2026</td>
+                    <td><span class="badge pending">Pending</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-icon btn-accept" title="Accept">✓</button>
+                            <button class="btn-icon btn-reject" title="Reject">✕</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="request-row">
+                    <td>mike@example.com</td>
+                    <td><span class="badge lost">Lost</span></td>
+                    <td>Golden Retriever (Max)</td>
+                    <td>Oct 10, 2026</td>
+                    <td><span class="badge pending">Pending</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-icon btn-accept" title="Accept">✓</button>
+                            <button class="btn-icon btn-reject" title="Reject">✕</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block admin_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Requests Moderation Actions
+        const acceptBtns = document.querySelectorAll('.btn-accept');
+        const rejectBtns = document.querySelectorAll('.btn-reject');
+        
+        acceptBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const row = e.target.closest('tr');
+                row.remove();
+                if (window.showNotification) showNotification("Request accepted and published to database.");
+            });
+        });
+
+        rejectBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const row = e.target.closest('tr');
+                row.remove();
+                if (window.showNotification) showNotification("Request rejected and deleted.");
+            });
+        });
+    });
+</script>
+{% endblock %}
