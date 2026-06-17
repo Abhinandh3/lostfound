@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LostFind - Items Database</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           1. RESET & BASE STYLES
+           ========================================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        html { scroll-behavior: smooth; }
+        :root {
+            --primary: #10B981; --primary-hover: #059669; --primary-transparent: rgba(16, 185, 129, 0.15);
+            --dark: #0F172A; --dark-secondary: #1E293B; --light: #F8FAFC; --white: #FFFFFF;
+            --gray: #64748B; --gray-light: #E2E8F0; --danger: #EF4444;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.05); --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.05); --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        body { background-color: var(--light); color: var(--dark); line-height: 1.6; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* =========================================
+           2. TYPOGRAPHY & BUTTONS
+           ========================================= */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.875rem 1.75rem; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-primary { background: var(--primary); color: var(--white); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+        .btn-transparent { background: var(--primary-transparent); color: var(--primary-hover); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .btn-transparent:hover { background: var(--primary); color: var(--white); transform: translateY(-2px); }
+
+        /* =========================================
+           3. NAVIGATION 
+           ========================================= */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; position: fixed; width: 100%; top: 0; z-index: 2000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: var(--shadow-sm); }
+        .logo { font-size: 1.75rem; font-weight: 800; color: var(--dark); }
+        .logo span { color: var(--primary); }
+        .nav-links { display: flex; list-style: none; align-items: center; gap: 2.5rem; }
+        .nav-links a:not(.btn) { font-weight: 500; color: var(--dark); transition: color 0.3s; position: relative; font-size: 0.95rem; }
+        .nav-links a:not(.btn)::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0; background-color: var(--primary); transition: width 0.3s ease; }
+        .nav-links a:not(.btn):hover::after { width: 100%; }
+        .hamburger { display: none; cursor: pointer; z-index: 2001; }
+        .hamburger .bar { display: block; width: 25px; height: 2px; margin: 6px auto; background-color: var(--dark); transition: all 0.3s ease; }
+
+        /* =========================================
+           4. PAGE HEADER & SEARCH
+           ========================================= */
+        .page-header { padding: 10rem 5% 4rem; background: var(--white); text-align: center; border-bottom: 1px solid var(--gray-light); }
+        .page-title { font-size: 3rem; font-weight: 800; color: var(--dark); margin-bottom: 1rem; letter-spacing: -1px; }
+        .page-title span { color: var(--primary); }
+        .page-desc { color: var(--gray); font-size: 1.15rem; max-width: 600px; margin: 0 auto 3rem; }
+
+        .search-container { max-width: 800px; margin: 0 auto; display: flex; gap: 1rem; position: relative; }
+        .search-input-wrapper { flex-grow: 1; position: relative; }
+        .search-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--gray); width: 20px; height: 20px; }
+        .search-input { width: 100%; padding: 1.25rem 1.25rem 1.25rem 3.5rem; border: 2px solid var(--gray-light); border-radius: 12px; font-size: 1.1rem; transition: all 0.3s ease; background: var(--light); color: var(--dark); }
+        .search-input:focus { outline: none; border-color: var(--primary); background: var(--white); box-shadow: 0 0 0 4px var(--primary-transparent); }
+        .btn-search { padding: 1.25rem 2.5rem; border-radius: 12px; font-size: 1.1rem; }
+
+        .ai-search-btn { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--primary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 8px; transition: all 0.3s; }
+        .ai-search-btn:hover { background: var(--primary-transparent); }
+        .ai-search-btn svg { width: 22px; height: 22px; }
+        .scanning-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center; z-index: 10; border-radius: 12px; font-weight: 600; color: var(--primary); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .scanning-overlay.active { opacity: 1; pointer-events: all; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* =========================================
+           5. FILTERS
+           ========================================= */
+        .filters-container { max-width: 1200px; margin: 2.5rem auto 0; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center; }
+        .filter-group { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; align-items: center; border-right: 2px solid var(--gray-light); padding-right: 1rem; margin-right: 0.5rem; }
+        .filter-group:last-child { border-right: none; padding-right: 0; margin-right: 0; }
+        
+        .filter-btn { padding: 0.6rem 1.2rem; border-radius: 50px; border: 1px solid var(--gray-light); background: var(--white); color: var(--gray); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .filter-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-transparent); }
+        .filter-btn.active { background: var(--dark); border-color: var(--dark); color: var(--white); }
+        .filter-btn.active-primary { background: var(--primary); border-color: var(--primary); color: var(--white); }
+        .filter-btn.active-danger { background: var(--danger); border-color: var(--danger); color: var(--white); }
+
+        /* =========================================
+           6. ITEMS DATABASE GRID
+           ========================================= */
+        .database-section { padding: 5rem 5%; max-width: 1400px; margin: 0 auto; min-height: 50vh; }
+        .items-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .results-count { font-size: 1.1rem; font-weight: 600; color: var(--gray); }
+        .sort-select { padding: 0.5rem 1rem; border: 1px solid var(--gray-light); border-radius: 8px; font-weight: 500; color: var(--dark); background: var(--white); cursor: pointer; outline: none; }
+
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2.5rem; }
+        
+        .item-card { background: var(--white); border-radius: 16px; overflow: hidden; border: 1px solid var(--gray-light); position: relative; transition: all 0.3s ease; display: flex; flex-direction: column; }
+        .item-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+        
+        .item-img-wrapper { overflow: hidden; height: 220px; position: relative; }
+        .item-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .item-card:hover img { transform: scale(1.05); }
+        
+        .status-badge { position: absolute; top: 1rem; left: 1rem; padding: 0.4rem 1rem; border-radius: 6px; font-weight: 700; font-size: 0.75rem; color: #fff; z-index: 2; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .item-card.lost .status-badge { background: var(--danger); }
+        .item-card.found .status-badge { background: var(--primary); }
+
+        .item-category { position: absolute; top: 1rem; right: 1rem; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; font-size: 0.75rem; color: var(--dark); background: rgba(255,255,255,0.9); z-index: 2; backdrop-filter: blur(4px); }
+
+        .item-info { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .item-info h3 { margin-bottom: 0.75rem; font-size: 1.25rem; color: var(--dark); font-weight: 700; line-height: 1.3; }
+        .item-meta { color: var(--gray); font-size: 0.9rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 8px; }
+        .item-meta span { display: flex; align-items: center; gap: 6px; }
+        
+        .item-action { margin-top: auto; width: 100%; }
+
+        .pagination { display: flex; justify-content: center; margin-top: 4rem; gap: 0.5rem; }
+        .page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 600; border: 1px solid var(--gray-light); background: var(--white); color: var(--gray); cursor: pointer; transition: all 0.2s; }
+        .page-btn:hover { background: var(--light); color: var(--dark); }
+        .page-btn.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+
+        /* =========================================
+           7. MODALS & FOOTER
+           ========================================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 3000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--white); border-radius: 16px; width: 90%; max-width: 450px; padding: 2.5rem; position: relative; transform: translateY(20px) scale(0.95); transition: all 0.3s ease; box-shadow: var(--shadow-lg); }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; color: var(--gray); cursor: pointer; transition: color 0.3s; }
+        .modal-close:hover { color: var(--dark); }
+        .modal-header { margin-bottom: 2rem; text-align: center; }
+        .modal-header h2 { font-size: 1.75rem; font-weight: 800; color: var(--dark); margin-bottom: 0.5rem; }
+        .modal-header p { color: var(--gray); font-size: 0.95rem; }
+        .form-group { margin-bottom: 1.25rem; text-align: left; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600; color: var(--dark-secondary); }
+        .form-group input { width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--gray-light); border-radius: 8px; font-size: 0.95rem; transition: all 0.3s; background: var(--light); }
+        .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-transparent); background: var(--white); }
+        .modal-content .btn-primary { width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1rem; }
+        .modal-footer { margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--gray); }
+        .modal-footer a { color: var(--primary); font-weight: 600; transition: color 0.3s; }
+        .modal-footer a:hover { color: var(--primary-hover); }
+
+        .footer { background: var(--dark-secondary); color: #fff; padding: 5rem 5% 2rem; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; margin-bottom: 3rem; max-width: 1400px; margin-left: auto; margin-right: auto; }
+        .footer-col h3 { font-size: 1.8rem; margin-bottom: 1rem; font-weight: 800; }
+        .footer-col h3 span { color: var(--primary); }
+        .footer-col h4 { margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: 600; color: var(--white); }
+        .footer-col p { color: #94A3B8; font-size: 0.95rem; }
+        .footer-col a { display: block; margin-bottom: 0.75rem; color: #94A3B8; transition: color 0.3s; font-size: 0.95rem; }
+        .footer-col a:hover { color: var(--primary); padding-left: 5px; } 
+        .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); color: #94A3B8; font-size: 0.9rem; max-width: 1400px; margin: 0 auto; }
+
+        /* =========================================
+           8. RESPONSIVE
+           ========================================= */
+        @media (max-width: 768px) {
+            .page-title { font-size: 2.25rem; }
+            .search-container { flex-direction: column; }
+            .btn-search { width: 100%; }
+            .filter-group { border-right: none; padding-right: 0; margin-right: 0; width: 100%; padding-bottom: 1rem; border-bottom: 1px solid var(--gray-light); margin-bottom: 1rem; }
+            .filter-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+            
+            .hamburger { display: block; }
+            .nav-links { position: fixed; left: -100%; top: 0; gap: 0; flex-direction: column; background-color: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); height: 100vh; width: 100%; text-align: center; transition: 0.4s ease; padding-top: 6rem; justify-content: flex-start; z-index: 2001; }
+            .nav-links.active { left: 0; }
+            .nav-links li { margin: 1.5rem 0; width: 100%; }
+            .nav-links a:not(.btn) { font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION -->
+    <header class="navbar">
+        <div class="logo">Lost<span>Find</span></div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index-new.html">Home</a></li>
+                <li><a href="index-new.html#how-it-works">Process</a></li>
+                <li><a href="items.html">Database</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="admin.html">Admin</a></li>
+                <li><a href="profile.html" class="btn btn-primary" id="signup-btn">Sign up</a></li>
+                <li><a href="profile.html" class="btn btn-transparent" id="signin" style="border: 2px solid var(--primary); background: transparent; color: var(--primary);">Sign in</a></li>
+            </ul>
+        </nav>
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </header>
+
+    <!-- PAGE HEADER & SEARCH -->
+    <section class="page-header">
+        <h1 class="page-title">Community <span>Database</span></h1>
+        <p class="page-desc">Search through thousands of reported lost items and found belongings in your area. Help us reunite people with what matters to them.</p>
+        
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <div class="scanning-overlay" id="scanning-overlay">
+                    <svg style="animation: spin 1s linear infinite; margin-right: 10px; width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                    Analyzing Image...
+                </div>
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" class="search-input" id="search-input" placeholder="Search for keys, wallet, phone, pets...">
+                <button class="ai-search-btn" id="ai-search-trigger" title="Search by Image">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                </button>
+                <input type="file" id="ai-image-input" accept="image/*" style="display: none;">
+            </div>
+            <button class="btn btn-primary btn-search">Search</button>
+        </div>
+
+        <div class="filters-container">
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">All Items</button>
+                <button class="filter-btn" data-filter="lost">Lost</button>
+                <button class="filter-btn" data-filter="found">Found</button>
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn" data-category="electronics">Electronics</button>
+                <button class="filter-btn" data-category="accessories">Accessories</button>
+                <button class="filter-btn" data-category="pets">Pets</button>
+                <button class="filter-btn" data-category="documents">Documents</button>
+                <button class="filter-btn" data-category="other">Other</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ITEMS DATABASE GRID -->
+    <section class="database-section">
+        <div class="items-header">
+            <div class="results-count">Showing <span id="count">8</span> results</div>
+            <select class="sort-select">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="closest">Closest to Me</option>
+            </select>
+        </div>
+
+        <div class="items-grid" id="items-grid">
+            <!-- Item 1 -->
+            <div class="item-card lost" data-type="lost" data-category="accessories">
+                <div class="status-badge">Lost</div>
+                <div class="item-category">Accessories</div>
+                <div class="item-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1584015694770-5a396e952671?auto=format&fit=crop&w=400&q=80" alt="Keys">
+                </div>
+                <div class="item-info">
+                    <h3>Honda Car Keys</h3>
+                    <div class="item-meta">
+                        <span>📍 Central Park, North Gate</span>
+                        <span>🕒 Today, 2:30 PM</span>
+                    </div>
+                    <button class="btn btn-transparent item-action">I Found This</button>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="item-card found" data-type="found" data-category="accessories">
+                <div class="status-badge">Found</div>
+                <div class="item-category">Accessories</div>
+                <div class="item-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=400&q=80" alt="Wallet">
+                </div>
+                <div class="item-info">
+                    <h3>Brown Leather Wallet</h3>
+                    <div class="item-meta">
+                        <span>📍 Main St. Coffee Shop</span>
+                        <span>🕒 Yesterday, 9:00 AM</span>
+                    </div>
+                    <button class="btn btn-transparent item-action">This is Mine</button>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="item-card lost" data-type="lost" data-category="electronics">
+                <div class="status-badge">Lost</div>
+                <div class="item-category">Electronics</div>
+                <div class="item-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?auto=format&fit=crop&w=400&q=80" alt="Airpods">
+                </div>
+                <div class="item-info">
+                    <h3>AirPods Pro (Case only)</h3>
+                    <div class="item-meta">
+                        <span>📍 Downtown Subway Station</span>
+                        <span>🕒 Today, 8:15 AM</span>
+                    </div>
+                    <button class="btn btn-transparent item-action">I Found This</button>
+                </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="item-card found" data-type="found" data-category="electronics">
+                <div class="status-badge">Found</div>
+                <div class="item-category">Electronics</div>
+                <div class="item-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=400&q=80" alt="Watch">
+                </div>
+                <div class="item-info">
+                    <h3>Apple Watch Series 8</h3>
+                    <div class="item-meta">
+                        <span>📍 University Library</span>
+                        <span>🕒 2 Days Ago</span>
+                    </div>
+                    <button class="btn btn-transparent item-action">This is Mine</button>
+                </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="item-card lost" data-type="lost" data-category="pets">
+                <div class="status-badge">Lost</div>
+                <div class="item-category">Pets</div>
+                <div class="item-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80" alt="Dog">
+                </div>
+                <div class="item-info">
+                    <h3>Golden Retriever (Max)</h3>
+                    <div class="item-meta">
+                        <span>📍 Oakwood Neighborhood</span>
+                        <span>🕒 Yesterday, 6:00 PM</span>
+                    </div>
+                    <button class="btn btn-transparent item-action">I Found This</button>
+                </div>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="item-card found" data-type="found" data-category="documents">
+                <div class="status-badge">Found</div>
+                <div class="item-category">Documents</div>
+                <div class="item-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1588665971485-f370ba62d3a3?auto=format&fit=crop&w=400&q=80" alt="Notebook">
+                </div>
+                <div class="item-info">
+                    <h3>Moleskine Sketchbook</h3>
+                    <div class="item-meta">
+                        <span>📍 Art Museum Cafe</span>
+                        <span>🕒 Today, 11:30 AM</span>
+                    </div>
+                    <button class="btn btn-transparent item-action">This is Mine</button>
+                </div>
+            </div>
+
+            <!-- Item 7 -->
+            <div class="item-card lost" data-type="lost" data-category="electronics">
+                <div class="status-badge">Lost</div>
+                <div class="item-category">Electronics</div>
+                <div class="item-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80" alt="Phone">
+                </div>
+                <div class="item-info">
+                    <h3>iPhone 13 Pro (Blue)</h3>
+                    <div class="item-meta">
+                        <span>📍 City Bus Route 42</span>
+                        <span>🕒 3 Days Ago</span>
+                    </div>
+                    <button class="btn btn-transparent item-action">I Found This</button>
+                </div>
+            </div>
+
+            <!-- Item 8 -->
+            <div class="item-card found" data-type="found" data-category="accessories">
+                <div class="status-badge">Found</div>
+                <div class="item-category">Accessories</div>
+                <div class="item-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&w=400&q=80" alt="Sunglasses">
+                </div>
+                <div class="item-info">
+                    <h3>Ray-Ban Aviator Sunglasses</h3>
+                    <div class="item-meta">
+                        <span>📍 Sunset Beach Pier</span>
+                        <span>🕒 Today, 1:00 PM</span>
+                    </div>
+                    <button class="btn btn-transparent item-action">This is Mine</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="pagination">
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">...</button>
+            <button class="page-btn">&raquo;</button>
+        </div>
+    </section>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal-content">
+            <button class="modal-close" data-dismiss="modal">&times;</button>
+            <div class="modal-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to continue to LostFind.</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+            <div class="modal-footer">
+                <p>Don't have an account? <a href="#" id="switch-to-signup">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="signup-modal">
+        <div class="modal-content">
+            <button class="modal-close" data-dismiss="modal">&times;</button>
+            <div class="modal-header">
+                <h2>Join LostFind</h2>
+                <p>Create an account to report or return items.</p>
+            </div>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Account</button>
+            </form>
+            <div class="modal-footer">
+                <p>Already have an account? <a href="#" id="switch-to-login">Sign in</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Lost<span>Find</span></h3>
+                <p>A community dedicated to doing the right thing. Because returning a lost item can turn someone's worst day into their best.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <a href="index-new.html">Home</a>
+                <a href="index-new.html#how-it-works">How it Works</a>
+                <a href="items.html">Browse Database</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="mailto:support@lostfind.com">support@lostfind.com</a>
+                <p style="margin-bottom: 0.5rem">1-800-LOST-FND</p>
+                <p>123 Community Ave,<br>Suite 100</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 LostFind Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // ==========================================
+            // 1. MOBILE MENU
+            // ==========================================
+            const hamburger = document.querySelector(".hamburger");
+            const navLinks = document.querySelector(".nav-links");
+            const links = document.querySelectorAll(".nav-links li a");
+
+            hamburger.addEventListener("click", () => navLinks.classList.toggle("active"));
+            links.forEach(link => link.addEventListener("click", () => navLinks.classList.remove("active")));
+
+            // ==========================================
+            // 2. MODALS LOGIC
+            // ==========================================
+            const loginModal = document.getElementById("login-modal");
+            const signupModal = document.getElementById("signup-modal");
+            const signinBtn = document.getElementById("signin");
+            const signupBtn = document.getElementById("signup-btn");
+            const closeBtns = document.querySelectorAll(".modal-close");
+            
+            const switchToSignup = document.getElementById("switch-to-signup");
+            const switchToLogin = document.getElementById("switch-to-login");
+
+            function openModal(modal) {
+                modal.classList.add("active");
+                document.body.style.overflow = "hidden";
+            }
+
+            function closeModal(modal) {
+                modal.classList.remove("active");
+                document.body.style.overflow = "";
+            }
+
+            if (signinBtn) {
+                signinBtn.addEventListener("click", (e) => { e.preventDefault(); openModal(loginModal); });
+            }
+            if (signupBtn) {
+                signupBtn.addEventListener("click", (e) => { e.preventDefault(); openModal(signupModal); });
+            }
+
+            closeBtns.forEach(btn => {
+                btn.addEventListener("click", () => { closeModal(loginModal); closeModal(signupModal); });
+            });
+
+            if (switchToSignup) {
+                switchToSignup.addEventListener("click", (e) => {
+                    e.preventDefault(); closeModal(loginModal); setTimeout(() => openModal(signupModal), 300);
+                });
+            }
+            if (switchToLogin) {
+                switchToLogin.addEventListener("click", (e) => {
+                    e.preventDefault(); closeModal(signupModal); setTimeout(() => openModal(loginModal), 300);
+                });
+            }
+
+            window.addEventListener("click", (e) => {
+                if (e.target === loginModal) closeModal(loginModal);
+                if (e.target === signupModal) closeModal(signupModal);
+            });
+
+            // ==========================================
+            // 3. FILTERS AND SEARCH SIMULATION
+            // ==========================================
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const items = document.querySelectorAll('.item-card');
+            const countDisplay = document.getElementById('count');
+            const searchInput = document.getElementById('search-input');
+
+            // Set current filters
+            let currentType = 'all'; // all, lost, found
+            let currentCategory = 'all'; // all, electronics, accessories, etc.
+
+            function applyFilters() {
+                let count = 0;
+                const query = searchInput.value.toLowerCase();
+
+                items.forEach(item => {
+                    const itemType = item.getAttribute('data-type');
+                    const itemCategory = item.getAttribute('data-category');
+                    const itemText = item.innerText.toLowerCase();
+
+                    const typeMatch = currentType === 'all' || currentType === itemType;
+                    const catMatch = currentCategory === 'all' || currentCategory === itemCategory;
+                    const searchMatch = query === '' || itemText.includes(query);
+
+                    if (typeMatch && catMatch && searchMatch) {
+                        item.style.display = 'flex';
+                        count++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                countDisplay.innerText = count;
+            }
+
+            // Filter button clicks
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (btn.hasAttribute('data-filter')) {
+                        // Type filter
+                        const filterVal = btn.getAttribute('data-filter');
+                        currentType = filterVal;
+                        
+                        // Update active state in type group
+                        document.querySelectorAll('.filter-btn[data-filter]').forEach(b => {
+                            b.classList.remove('active', 'active-primary', 'active-danger');
+                        });
+                        
+                        if (filterVal === 'all') btn.classList.add('active');
+                        else if (filterVal === 'lost') btn.classList.add('active-danger');
+                        else if (filterVal === 'found') btn.classList.add('active-primary');
+
+                    } else if (btn.hasAttribute('data-category')) {
+                        // Category filter
+                        const catVal = btn.getAttribute('data-category');
+                        
+                        // Toggle logic for category
+                        if (currentCategory === catVal) {
+                            currentCategory = 'all'; // Toggle off
+                            btn.classList.remove('active');
+                        } else {
+                            currentCategory = catVal;
+                            document.querySelectorAll('.filter-btn[data-category]').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                        }
+                    }
+
+                    applyFilters();
+                });
+            });
+
+            // Search input listener (only on button click or Enter key)
+            const searchBtn = document.querySelector('.btn-search');
+            searchBtn.addEventListener('click', applyFilters);
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyFilters();
+                }
+            });
+
+            // AI Image Search Mock
+            const aiSearchTrigger = document.getElementById('ai-search-trigger');
+            const aiImageInput = document.getElementById('ai-image-input');
+            const scanningOverlay = document.getElementById('scanning-overlay');
+
+            if (aiSearchTrigger && aiImageInput) {
+                aiSearchTrigger.addEventListener('click', () => {
+                    aiImageInput.click();
+                });
+
+                aiImageInput.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                        scanningOverlay.classList.add('active');
+                        // Simulate AI processing
+                        setTimeout(() => {
+                            scanningOverlay.classList.remove('active');
+                            // Mocking finding the Apple Watch (item 4)
+                            searchInput.value = "Apple Watch";
+                            applyFilters();
+                            aiImageInput.value = ""; // reset
+                        }, 1500);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

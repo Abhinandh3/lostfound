@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LostFind - Feedback</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           1. RESET & BASE STYLES
+           ========================================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        html { scroll-behavior: smooth; }
+        :root {
+            --primary: #10B981; --primary-hover: #059669; --primary-transparent: rgba(16, 185, 129, 0.15);
+            --dark: #0F172A; --dark-secondary: #1E293B; --light: #F8FAFC; --white: #FFFFFF;
+            --gray: #64748B; --gray-light: #E2E8F0; --danger: #EF4444;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.05); --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.05); --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        body { background-color: var(--light); color: var(--dark); line-height: 1.6; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* =========================================
+           2. TYPOGRAPHY & BUTTONS
+           ========================================= */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.875rem 1.75rem; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-primary { background: var(--primary); color: var(--white); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+        .btn-transparent { background: var(--primary-transparent); color: var(--primary-hover); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .btn-transparent:hover { background: var(--primary); color: var(--white); transform: translateY(-2px); }
+
+        /* =========================================
+           3. NAVIGATION 
+           ========================================= */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; position: fixed; width: 100%; top: 0; z-index: 2000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: var(--shadow-sm); }
+        .logo { font-size: 1.75rem; font-weight: 800; color: var(--dark); }
+        .logo span { color: var(--primary); }
+        .nav-links { display: flex; list-style: none; align-items: center; gap: 2.5rem; }
+        .nav-links a:not(.btn) { font-weight: 500; color: var(--dark); transition: color 0.3s; position: relative; font-size: 0.95rem; }
+        .nav-links a:not(.btn)::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0; background-color: var(--primary); transition: width 0.3s ease; }
+        .nav-links a:not(.btn):hover::after { width: 100%; }
+        .hamburger { display: none; cursor: pointer; z-index: 2001; }
+        .hamburger .bar { display: block; width: 25px; height: 2px; margin: 6px auto; background-color: var(--dark); transition: all 0.3s ease; }
+
+        /* =========================================
+           4. PAGE HEADER
+           ========================================= */
+        .page-header { padding: 10rem 5% 4rem; background: var(--white); text-align: center; border-bottom: 1px solid var(--gray-light); }
+        .page-title { font-size: 3rem; font-weight: 800; color: var(--dark); margin-bottom: 1rem; letter-spacing: -1px; }
+        .page-title span { color: var(--primary); }
+        .page-desc { color: var(--gray); font-size: 1.15rem; max-width: 600px; margin: 0 auto 1rem; }
+
+        /* =========================================
+           5. FEEDBACK FORM
+           ========================================= */
+        .feedback-section { padding: 4rem 5%; max-width: 800px; margin: 0 auto; min-height: 50vh; }
+        .feedback-card { background: var(--white); border-radius: 16px; padding: 3rem; box-shadow: var(--shadow-lg); border: 1px solid var(--gray-light); }
+        
+        .form-group { margin-bottom: 1.5rem; text-align: left; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600; color: var(--dark-secondary); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 1rem; border: 1px solid var(--gray-light); border-radius: 8px; font-size: 1rem; transition: all 0.3s; background: var(--light); color: var(--dark); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-transparent); background: var(--white); }
+        .form-group textarea { min-height: 150px; resize: vertical; }
+
+        .rating-group { display: flex; gap: 1rem; margin-top: 0.5rem; }
+        .rating-btn { flex: 1; padding: 1rem; border: 1px solid var(--gray-light); border-radius: 8px; background: var(--light); cursor: pointer; transition: all 0.2s; text-align: center; font-size: 1.5rem; filter: grayscale(100%); opacity: 0.6; }
+        .rating-btn:hover { border-color: var(--primary); filter: grayscale(0%); opacity: 1; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .rating-btn.selected { border-color: var(--primary); filter: grayscale(0%); opacity: 1; background: var(--primary-transparent); box-shadow: 0 0 0 2px var(--primary); }
+
+        .submit-btn { width: 100%; padding: 1.25rem; font-size: 1.1rem; margin-top: 1rem; }
+
+        /* =========================================
+           6. FEEDBACK LIST
+           ========================================= */
+        .feedback-list-section { padding: 4rem 5%; max-width: 1200px; margin: 0 auto; background: var(--light); border-top: 1px solid var(--gray-light); }
+        .feedback-list-header { text-align: center; margin-bottom: 3rem; }
+        .feedback-list-header h2 { font-size: 2.25rem; font-weight: 800; color: var(--dark); }
+        .feedback-list-header p { color: var(--gray); font-size: 1.1rem; }
+        
+        .feedback-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+        .feedback-card-item { background: var(--white); border-radius: 16px; padding: 2rem; border: 1px solid var(--gray-light); box-shadow: var(--shadow-sm); transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; }
+        .feedback-card-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        
+        .fc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+        .fc-user { display: flex; align-items: center; gap: 1rem; }
+        .fc-avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--primary-transparent); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; }
+        .fc-info h4 { font-size: 1rem; color: var(--dark); font-weight: 700; line-height: 1.2; }
+        .fc-info span { font-size: 0.85rem; color: var(--gray); }
+        
+        .fc-badge { display: inline-block; padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .fc-badge.suggestion { background: rgba(59, 130, 246, 0.15); color: #2563EB; }
+        .fc-badge.compliment { background: rgba(16, 185, 129, 0.15); color: #059669; }
+        .fc-badge.bug { background: rgba(239, 68, 68, 0.15); color: #DC2626; }
+        
+        .fc-body { color: var(--dark-secondary); font-size: 0.95rem; line-height: 1.6; flex-grow: 1; font-style: italic; position: relative; }
+        .fc-body::before { content: '"'; font-size: 3rem; color: var(--gray-light); position: absolute; top: -15px; left: -10px; opacity: 0.5; font-family: serif; }
+
+        /* =========================================
+           7. MODALS & FOOTER (Copied from base)
+           ========================================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 3000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--white); border-radius: 16px; width: 90%; max-width: 450px; padding: 2.5rem; position: relative; transform: translateY(20px) scale(0.95); transition: all 0.3s ease; box-shadow: var(--shadow-lg); }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; color: var(--gray); cursor: pointer; transition: color 0.3s; }
+        .modal-close:hover { color: var(--dark); }
+        .modal-header { margin-bottom: 2rem; text-align: center; }
+        .modal-header h2 { font-size: 1.75rem; font-weight: 800; color: var(--dark); margin-bottom: 0.5rem; }
+        .modal-header p { color: var(--gray); font-size: 0.95rem; }
+        .modal-footer { margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--gray); }
+        .modal-footer a { color: var(--primary); font-weight: 600; transition: color 0.3s; }
+        .modal-footer a:hover { color: var(--primary-hover); }
+
+        .footer { background: var(--dark-secondary); color: #fff; padding: 5rem 5% 2rem; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; margin-bottom: 3rem; max-width: 1400px; margin-left: auto; margin-right: auto; }
+        .footer-col h3 { font-size: 1.8rem; margin-bottom: 1rem; font-weight: 800; }
+        .footer-col h3 span { color: var(--primary); }
+        .footer-col h4 { margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: 600; color: var(--white); }
+        .footer-col p { color: #94A3B8; font-size: 0.95rem; }
+        .footer-col a { display: block; margin-bottom: 0.75rem; color: #94A3B8; transition: color 0.3s; font-size: 0.95rem; }
+        .footer-col a:hover { color: var(--primary); padding-left: 5px; } 
+        .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); color: #94A3B8; font-size: 0.9rem; max-width: 1400px; margin: 0 auto; }
+
+        @media (max-width: 768px) {
+            .page-title { font-size: 2.25rem; }
+            .feedback-card { padding: 2rem 1.5rem; }
+            .rating-group { flex-wrap: wrap; }
+            .rating-btn { flex: 1 1 calc(33.333% - 1rem); }
+            .hamburger { display: block; }
+            .nav-links { position: fixed; left: -100%; top: 0; gap: 0; flex-direction: column; background-color: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); height: 100vh; width: 100%; text-align: center; transition: 0.4s ease; padding-top: 6rem; justify-content: flex-start; z-index: 2001; }
+            .nav-links.active { left: 0; }
+            .nav-links li { margin: 1.5rem 0; width: 100%; }
+            .nav-links a:not(.btn) { font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION -->
+    <header class="navbar">
+        <div class="logo">Lost<span>Find</span></div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index-new.html">Home</a></li>
+                <li><a href="index-new.html#how-it-works">Process</a></li>
+                <li><a href="items.html">Database</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="admin.html">Admin</a></li>
+                <li><a href="profile.html" class="btn btn-primary" id="signup-btn">Sign up</a></li>
+                <li><a href="profile.html" class="btn btn-transparent" id="signin" style="border: 2px solid var(--primary); background: transparent; color: var(--primary);">Sign in</a></li>
+            </ul>
+        </nav>
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </header>
+
+    <!-- PAGE HEADER -->
+    <section class="page-header">
+        <h1 class="page-title">We Value Your <span>Feedback</span></h1>
+        <p class="page-desc">Help us improve the LostFind community. Whether you have a suggestion, found a bug, or just want to share your experience, we want to hear from you.</p>
+    </section>
+
+    <!-- FEEDBACK FORM -->
+    <section class="feedback-section">
+        <div class="feedback-card">
+            <form id="feedback-form">
+                <div class="form-group">
+                    <label for="fb-type">What is this regarding?</label>
+                    <select id="fb-type" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="suggestion">Feature Suggestion</option>
+                        <option value="bug">Report a Bug</option>
+                        <option value="compliment">Compliment / Success Story</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>How would you rate your experience?</label>
+                    <div class="rating-group" id="rating-group">
+                        <button type="button" class="rating-btn" data-value="1">😡<br><span style="font-size:0.8rem;font-weight:600;display:block;margin-top:5px;filter:grayscale(0%);">Terrible</span></button>
+                        <button type="button" class="rating-btn" data-value="2">😕<br><span style="font-size:0.8rem;font-weight:600;display:block;margin-top:5px;filter:grayscale(0%);">Bad</span></button>
+                        <button type="button" class="rating-btn" data-value="3">😐<br><span style="font-size:0.8rem;font-weight:600;display:block;margin-top:5px;filter:grayscale(0%);">Okay</span></button>
+                        <button type="button" class="rating-btn" data-value="4">🙂<br><span style="font-size:0.8rem;font-weight:600;display:block;margin-top:5px;filter:grayscale(0%);">Good</span></button>
+                        <button type="button" class="rating-btn" data-value="5">😍<br><span style="font-size:0.8rem;font-weight:600;display:block;margin-top:5px;filter:grayscale(0%);">Great</span></button>
+                    </div>
+                    <input type="hidden" id="fb-rating" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="fb-message">Your Feedback</label>
+                    <textarea id="fb-message" placeholder="Tell us what you think..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary submit-btn">Submit Feedback</button>
+            </form>
+            
+            <div id="success-msg" style="display: none; text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--dark);">Thank You!</h3>
+                <p style="color: var(--gray);">Your feedback has been successfully submitted. We appreciate your help in making LostFind better.</p>
+                <button type="button" class="btn btn-outline-white" style="margin-top: 1.5rem; color: var(--primary); border-color: var(--primary);" onclick="window.location.reload();">Submit Another</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMMUNITY FEEDBACK -->
+    <section class="feedback-list-section">
+        <div class="feedback-list-header">
+            <h2>Community Voices</h2>
+            <p>See what others are saying about LostFind.</p>
+        </div>
+        <div class="feedback-grid">
+            <!-- Card 1 -->
+            <div class="feedback-card-item">
+                <div class="fc-header">
+                    <div class="fc-user">
+                        <div class="fc-avatar">S</div>
+                        <div class="fc-info">
+                            <h4>Sarah Jenkins</h4>
+                            <span>2 days ago</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="fc-badge compliment">Compliment</span>
+                <div class="fc-body">
+                    I lost my keys at the park and someone found them using this app! The secure swap location feature made me feel incredibly safe when meeting up.
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="feedback-card-item">
+                <div class="fc-header">
+                    <div class="fc-user">
+                        <div class="fc-avatar" style="background: rgba(59, 130, 246, 0.15); color: #2563EB;">M</div>
+                        <div class="fc-info">
+                            <h4>Michael T.</h4>
+                            <span>1 week ago</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="fc-badge suggestion">Suggestion</span>
+                <div class="fc-body">
+                    Great platform! It would be really awesome if you could add a dark mode option for browsing the database at night.
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="feedback-card-item">
+                <div class="fc-header">
+                    <div class="fc-user">
+                        <div class="fc-avatar" style="background: rgba(139, 92, 246, 0.15); color: #7C3AED;">A</div>
+                        <div class="fc-info">
+                            <h4>Anonymous</h4>
+                            <span>2 weeks ago</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="fc-badge compliment">Compliment</span>
+                <div class="fc-body">
+                    The AI image search is mind-blowing. I uploaded a picture of my lost watch, and it instantly matched with a found report. Thank you!!
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal-content">
+            <button class="modal-close" data-dismiss="modal">&times;</button>
+            <div class="modal-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to continue to LostFind.</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:1rem; margin-top:1rem;">Sign In</button>
+            </form>
+            <div class="modal-footer">
+                <p>Don't have an account? <a href="#" id="switch-to-signup">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="signup-modal">
+        <div class="modal-content">
+            <button class="modal-close" data-dismiss="modal">&times;</button>
+            <div class="modal-header">
+                <h2>Join LostFind</h2>
+                <p>Create an account to report or return items.</p>
+            </div>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:1rem; margin-top:1rem;">Create Account</button>
+            </form>
+            <div class="modal-footer">
+                <p>Already have an account? <a href="#" id="switch-to-login">Sign in</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Lost<span>Find</span></h3>
+                <p>A community dedicated to doing the right thing. Because returning a lost item can turn someone's worst day into their best.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <a href="index-new.html">Home</a>
+                <a href="index-new.html#how-it-works">How it Works</a>
+                <a href="items.html">Browse Database</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="mailto:support@lostfind.com">support@lostfind.com</a>
+                <p style="margin-bottom: 0.5rem">1-800-LOST-FND</p>
+                <p>123 Community Ave,<br>Suite 100</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 LostFind Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // ==========================================
+            // 1. MOBILE MENU
+            // ==========================================
+            const hamburger = document.querySelector(".hamburger");
+            const navLinks = document.querySelector(".nav-links");
+            const links = document.querySelectorAll(".nav-links li a");
+
+            hamburger.addEventListener("click", () => navLinks.classList.toggle("active"));
+            links.forEach(link => link.addEventListener("click", () => navLinks.classList.remove("active")));
+
+            // ==========================================
+            // 2. MODALS LOGIC
+            // ==========================================
+            const loginModal = document.getElementById("login-modal");
+            const signupModal = document.getElementById("signup-modal");
+            const signinBtn = document.getElementById("signin");
+            const signupBtn = document.getElementById("signup-btn");
+            const closeBtns = document.querySelectorAll(".modal-close");
+            
+            const switchToSignup = document.getElementById("switch-to-signup");
+            const switchToLogin = document.getElementById("switch-to-login");
+
+            function openModal(modal) {
+                modal.classList.add("active");
+                document.body.style.overflow = "hidden";
+            }
+
+            function closeModal(modal) {
+                modal.classList.remove("active");
+                document.body.style.overflow = "";
+            }
+
+            if (signinBtn) {
+                signinBtn.addEventListener("click", (e) => { e.preventDefault(); openModal(loginModal); });
+            }
+            if (signupBtn) {
+                signupBtn.addEventListener("click", (e) => { e.preventDefault(); openModal(signupModal); });
+            }
+
+            closeBtns.forEach(btn => {
+                btn.addEventListener("click", () => { closeModal(loginModal); closeModal(signupModal); });
+            });
+
+            if (switchToSignup) {
+                switchToSignup.addEventListener("click", (e) => {
+                    e.preventDefault(); closeModal(loginModal); setTimeout(() => openModal(signupModal), 300);
+                });
+            }
+            if (switchToLogin) {
+                switchToLogin.addEventListener("click", (e) => {
+                    e.preventDefault(); closeModal(signupModal); setTimeout(() => openModal(loginModal), 300);
+                });
+            }
+
+            window.addEventListener("click", (e) => {
+                if (e.target === loginModal) closeModal(loginModal);
+                if (e.target === signupModal) closeModal(signupModal);
+            });
+
+            // ==========================================
+            // 3. FEEDBACK FORM LOGIC
+            // ==========================================
+            const ratingBtns = document.querySelectorAll('.rating-btn');
+            const ratingInput = document.getElementById('fb-rating');
+            const feedbackForm = document.getElementById('feedback-form');
+            const successMsg = document.getElementById('success-msg');
+
+            ratingBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    ratingBtns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    ratingInput.value = btn.getAttribute('data-value');
+                });
+            });
+
+            feedbackForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!ratingInput.value) {
+                    alert("Please select a rating.");
+                    return;
+                }
+                
+                // Simulate form submission
+                feedbackForm.style.display = "none";
+                successMsg.style.display = "block";
+            });
+        });
+    </script>
+</body>
+</html>

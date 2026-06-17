@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LostFind - Community Blog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        :root {
+            --primary: #10B981; --primary-hover: #059669; --primary-transparent: rgba(16, 185, 129, 0.15);
+            --dark: #0F172A; --dark-secondary: #1E293B; --light: #F8FAFC; --white: #FFFFFF;
+            --gray: #64748B; --gray-light: #E2E8F0; --danger: #EF4444; --success: #10B981; --warning: #F59E0B;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.05); --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.05); --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        body { background-color: var(--light); color: var(--dark); line-height: 1.6; }
+        a { text-decoration: none; color: inherit; }
+        
+        /* NAVBAR */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; background-color: var(--white); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 1.75rem; font-weight: 800; color: var(--dark); letter-spacing: -0.5px; }
+        .logo span { color: var(--primary); }
+        .nav-links { list-style: none; display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: var(--dark-secondary); font-weight: 500; transition: color 0.3s ease; }
+        .nav-links a:hover { color: var(--primary); }
+        .btn { padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: none; display: inline-block; }
+        .btn-primary { background-color: var(--primary); color: var(--white); }
+        .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); color: var(--white); }
+        .btn-transparent { border: 2px solid var(--primary); background: transparent; color: var(--primary); }
+        
+        /* PAGE HEADER */
+        .page-header { background: var(--dark); color: white; text-align: center; padding: 6rem 5% 4rem; position: relative; overflow: hidden; }
+        .page-title { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; position: relative; z-index: 2; }
+        .page-title span { color: var(--primary); }
+        .page-desc { font-size: 1.25rem; color: #94A3B8; max-width: 600px; margin: 0 auto; position: relative; z-index: 2; }
+        
+        /* BLOG CONTAINER */
+        .blog-container { max-width: 1200px; margin: 4rem auto; padding: 0 5%; }
+        
+        /* FEATURED POST */
+        .featured-post { display: flex; gap: 3rem; background: var(--white); border-radius: 16px; overflow: hidden; border: 1px solid var(--gray-light); box-shadow: var(--shadow-sm); margin-bottom: 5rem; transition: 0.3s; cursor: pointer; }
+        .featured-post:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+        .fp-img { width: 50%; background: #E2E8F0; position: relative; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+        .fp-content { padding: 3rem; width: 50%; display: flex; flex-direction: column; justify-content: center; }
+        .fp-badge { background: var(--primary-transparent); color: var(--primary); font-weight: 700; font-size: 0.8rem; padding: 0.3rem 0.8rem; border-radius: 20px; align-self: flex-start; margin-bottom: 1rem; text-transform: uppercase; }
+        .fp-title { font-size: 2.2rem; font-weight: 800; color: var(--dark); margin-bottom: 1rem; line-height: 1.2; }
+        .fp-desc { color: var(--gray); font-size: 1.1rem; margin-bottom: 1.5rem; line-height: 1.6; }
+        .fp-meta { color: #94A3B8; font-size: 0.9rem; font-weight: 500; }
+        
+        @media (max-width: 768px) {
+            .featured-post { flex-direction: column; }
+            .fp-img { width: 100%; height: 250px; }
+            .fp-content { width: 100%; padding: 2rem; }
+            .fp-title { font-size: 1.75rem; }
+        }
+
+        /* POST GRID */
+        .section-title { font-size: 2rem; font-weight: 800; color: var(--dark); margin-bottom: 2rem; }
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+        .blog-card { background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--gray-light); box-shadow: var(--shadow-sm); transition: 0.3s; display: flex; flex-direction: column; cursor: pointer; }
+        .blog-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .bc-img { height: 200px; background: #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .bc-content { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
+        .bc-badge { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .bc-title { font-size: 1.25rem; font-weight: 700; color: var(--dark); margin-bottom: 0.75rem; line-height: 1.3; }
+        .bc-desc { color: var(--gray); font-size: 0.95rem; margin-bottom: 1.5rem; flex-grow: 1; }
+        .bc-meta { font-size: 0.85rem; color: #94A3B8; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
+        
+        .read-more { color: var(--primary); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; transition: 0.2s; }
+        .blog-card:hover .read-more { gap: 0.5rem; color: var(--primary-hover); }
+
+        /* FOOTER */
+        .footer { background-color: var(--dark); color: var(--white); padding: 5rem 5% 2rem; margin-top: auto; }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4rem; margin-bottom: 4rem; }
+        .footer-col h3 { font-size: 1.75rem; font-weight: 800; margin-bottom: 1rem; }
+        .footer-col h3 span { color: var(--primary); }
+        .footer-col p { color: #94A3B8; margin-bottom: 1.5rem; }
+        .footer-col h4 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
+        .footer-col a { display: block; color: #94A3B8; margin-bottom: 0.75rem; transition: color 0.3s ease; }
+        .footer-col a:hover { color: var(--white); }
+        .footer-bottom { max-width: 1200px; margin: 0 auto; text-align: center; color: #64748B; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem; }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION -->
+    <header class="navbar">
+        <div class="logo">Lost<span>Find</span></div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index-new.html">Home</a></li>
+                <li><a href="index-new.html#how-it-works">Process</a></li>
+                <li><a href="items.html">Database</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="admin.html">Admin</a></li>
+                <li><a href="profile.html" class="btn btn-primary" id="signup-btn">Sign up</a></li>
+                <li><a href="profile.html" class="btn btn-transparent" id="signin" style="border: 2px solid var(--primary); background: transparent; color: var(--primary);">Sign in</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- PAGE HEADER -->
+    <section class="page-header">
+        <h1 class="page-title">Community <span>Blog</span></h1>
+        <p class="page-desc">Stories of returned items, tips for keeping your belongings safe, and updates from the LostFind team.</p>
+    </section>
+
+    <div class="blog-container">
+        
+        <!-- FEATURED POST -->
+        <article class="featured-post" onclick="alert('This would open the full blog post!')">
+            <div class="fp-img">🎉</div>
+            <div class="fp-content">
+                <span class="fp-badge">Success Story</span>
+                <h2 class="fp-title">How Sarah got her Grandmother's ring back after 3 days</h2>
+                <p class="fp-desc">Sarah lost hope when her family heirloom went missing at the local park. Read how the LostFind community rallied together and used our AI image search to reunite her with her most prized possession.</p>
+                <div class="fp-meta">By The LostFind Team • Oct 10, 2026</div>
+            </div>
+        </article>
+
+        <!-- LATEST POSTS -->
+        <h2 class="section-title">Latest Articles</h2>
+        <div class="blog-grid">
+            
+            <article class="blog-card" onclick="alert('This would open the full blog post!')">
+                <div class="bc-img">💡</div>
+                <div class="bc-content">
+                    <span class="bc-badge">Tips & Tricks</span>
+                    <h3 class="bc-title">5 Ways to Secure Your Belongings While Traveling</h3>
+                    <p class="bc-desc">Traveling can be stressful. Here are the top five things you can do to ensure you don't leave anything behind at the airport or hotel.</p>
+                    <div class="bc-meta">
+                        <span>Oct 5, 2026</span>
+                        <span class="read-more">Read Article →</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="blog-card" onclick="alert('This would open the full blog post!')">
+                <div class="bc-img">📱</div>
+                <div class="bc-content">
+                    <span class="bc-badge">Platform Update</span>
+                    <h3 class="bc-title">Introducing AI-Powered Image Matching</h3>
+                    <p class="bc-desc">We've just launched our newest feature! You can now upload a picture of your lost item and our system will automatically scan found reports.</p>
+                    <div class="bc-meta">
+                        <span>Sep 28, 2026</span>
+                        <span class="read-more">Read Article →</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="blog-card" onclick="alert('This would open the full blog post!')">
+                <div class="bc-img">🤝</div>
+                <div class="bc-content">
+                    <span class="bc-badge">Safety</span>
+                    <h3 class="bc-title">Best Practices for Secure Swaps</h3>
+                    <p class="bc-desc">Meeting someone to return an item? Learn how to choose a safe, public location and handle the exchange securely.</p>
+                    <div class="bc-meta">
+                        <span>Sep 15, 2026</span>
+                        <span class="read-more">Read Article →</span>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Lost<span>Find</span></h3>
+                <p>A community dedicated to doing the right thing. Because returning a lost item can turn someone's worst day into their best.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <a href="index-new.html">Home</a>
+                <a href="index-new.html#how-it-works">How it Works</a>
+                <a href="items.html">Browse Database</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="mailto:support@lostfind.com">support@lostfind.com</a>
+                <p style="margin-bottom: 0.5rem">1-800-LOST-FND</p>
+                <p>123 Community Ave,<br>Suite 100</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 LostFind Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
