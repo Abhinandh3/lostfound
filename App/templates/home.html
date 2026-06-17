@@ -1062,7 +1062,7 @@
             // 1. CONFIG
             // ==========================================
             const frameCount = 31;
-            const currentFrame = (index) => `images/ezgif-frame-${String(index).padStart(3, "0")}.jpg`;
+            const currentFrame = (index) => `{% static 'images/ezgif-frame-' %}${String(index).padStart(3, "0")}.jpg`;
 
             const heroSpacer = document.getElementById("hero-spacer");
             const hero = document.getElementById("home"); // the .hero <section>
