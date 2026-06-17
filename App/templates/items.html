@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -169,15 +170,15 @@
         <div class="logo">Lost<span>Find</span></div>
         <nav>
             <ul class="nav-links">
-                <li><a href="index-new.html">Home</a></li>
-                <li><a href="index-new.html#how-it-works">Process</a></li>
-                <li><a href="items.html">Database</a></li>
-                <li><a href="blog.html">Blog</a></li>
-                <li><a href="feedback.html">Feedback</a></li>
-                <li><a href="profile.html">Profile</a></li>
-                <li><a href="admin.html">Admin</a></li>
-                <li><a href="profile.html" class="btn btn-primary" id="signup-btn">Sign up</a></li>
-                <li><a href="profile.html" class="btn btn-transparent" id="signin" style="border: 2px solid var(--primary); background: transparent; color: var(--primary);">Sign in</a></li>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'home' %}#how-it-works">Process</a></li>
+                <li><a href="{% url 'items' %}">Database</a></li>
+                <li><a href="{% url 'blog' %}">Blog</a></li>
+                <li><a href="{% url 'feedback' %}">Feedback</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="{% url 'admin_page' %}">Admin</a></li>
+                <li><a href="{% url 'profile' %}" class="btn btn-primary" id="signup-btn">Sign up</a></li>
+                <li><a href="{% url 'profile' %}" class="btn btn-transparent" id="signin" style="border: 2px solid var(--primary); background: transparent; color: var(--primary);">Sign in</a></li>
             </ul>
         </nav>
         <div class="hamburger">

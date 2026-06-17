@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,7 +104,7 @@
             <div class="nav-item" data-target="gallery">Found Items Gallery</div>
         </nav>
         <div style="padding: 1.5rem; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05);">
-            <a href="index-new.html" style="color: #94A3B8; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">← Back to Website</a>
+            <a href="{% url 'home' %}" style="color: #94A3B8; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">← Back to Website</a>
         </div>
     </aside>
 
