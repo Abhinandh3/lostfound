@@ -1,0 +1,233 @@
+{% extends 'lostfound/base.html' %}
+
+{% block title %}LOSTFOUND - Home - AI-Powered Missing Person & Pet Locator{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Reuniting Families Through AI</h1>
+        <p>Advanced computer vision and community-powered search to locate missing loved ones and pets. Upload a photo and let our AI find matches across thousands of cases.</p>
+        
+        <div class="hero-buttons">
+            <a href="{% url 'create_case' %}" class="btn btn-primary btn-lg">Report Missing</a>
+            <a href="{% url 'ai_search' %}" class="btn btn-outline btn-lg">AI Visual Search</a>
+            <a href="{% url 'map' %}" class="btn btn-secondary btn-lg">View Map</a>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">{{ total_cases }}</span>
+                <span class="stat-label">Total Cases</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ solved_cases }}</span>
+                <span class="stat-label">Cases Solved</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">24/7</span>
+                <span class="stat-label">AI Monitoring</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Lost Cases -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Recent Lost Cases</h2>
+            <p class="section-subtitle">Help us spread the word about these missing individuals and pets</p>
+        </div>
+        
+        {% if lost_cases %}
+            <div class="grid grid-3">
+                {% for case in lost_cases %}
+                    <article class="card">
+                        {% with primary_image=case.images.first %}
+                            {% if primary_image %}
+                                <img src="{{ primary_image.image.url }}" alt="{{ case.title }}" class="card-image" loading="lazy">
+                            {% else %}
+                                <div class="card-image skeleton"></div>
+                            {% endif %}
+                        {% endwith %}
+                        
+                        <div class="card-body">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <span class="badge badge-lost">{{ case.case_type }}</span>
+                                <span class="badge">{{ case.category }}</span>
+                            </div>
+                            
+                            <h3 class="card-title">{{ case.title }}</h3>
+                            <p class="card-text">{{ case.description|truncatewords:20 }}</p>
+                            
+                            <div class="card-meta">
+                                <span>{{ case.last_seen_location }}</span>
+                                <span>{{ case.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            
+                            <div style="margin-top: 1rem;">
+                                <a href="{% url 'case_detail' case.pk %}" class="btn btn-sm btn-outline" style="width: 100%;">View Details</a>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'cases_list' %}?type=LOST" class="btn btn-primary">View All Lost Cases</a>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <h3>No Lost Cases Yet</h3>
+                <p>Be the first to report a missing person or pet</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recent Found Cases -->
+<section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Recently Found</h2>
+            <p class="section-subtitle">Success stories and found individuals/pets waiting to be reunited</p>
+        </div>
+        
+        {% if found_cases %}
+            <div class="grid grid-3">
+                {% for case in found_cases %}
+                    <article class="card">
+                        {% with primary_image=case.images.first %}
+                            {% if primary_image %}
+                                <img src="{{ primary_image.image.url }}" alt="{{ case.title }}" class="card-image" loading="lazy">
+                            {% else %}
+                                <div class="card-image skeleton"></div>
+                            {% endif %}
+                        {% endwith %}
+                        
+                        <div class="card-body">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <span class="badge badge-found">{{ case.case_type }}</span>
+                                <span class="badge">{{ case.category }}</span>
+                            </div>
+                            
+                            <h3 class="card-title">{{ case.title }}</h3>
+                            <p class="card-text">{{ case.description|truncatewords:20 }}</p>
+                            
+                            <div class="card-meta">
+                                <span>{{ case.last_seen_location }}</span>
+                                <span>{{ case.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            
+                            <div style="margin-top: 1rem;">
+                                <a href="{% url 'case_detail' case.pk %}" class="btn btn-sm btn-outline" style="width: 100%;">View Details</a>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'cases_list' %}?type=FOUND" class="btn btn-secondary">View All Found Cases</a>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h3>No Found Cases Yet</h3>
+                <p>Found someone? Help reunite them with their family</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Simple steps to leverage AI technology for finding missing loved ones</p>
+        </div>
+        
+        <div class="grid grid-4">
+            <div class="text-center" style="padding: 2rem;">
+                <div style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem; font-weight: 800;">1</div>
+                <h4 style="margin-bottom: 0.5rem;">Create Case</h4>
+                <p style="color: var(--text-muted);">Report a missing person or pet with photos and details</p>
+            </div>
+            
+            <div class="text-center" style="padding: 2rem;">
+                <div style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem; font-weight: 800;">2</div>
+                <h4 style="margin-bottom: 0.5rem;">AI Analysis</h4>
+                <p style="color: var(--text-muted);">Our CLIP AI generates vector embeddings for visual matching</p>
+            </div>
+            
+            <div class="text-center" style="padding: 2rem;">
+                <div style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem; font-weight: 800;">3</div>
+                <h4 style="margin-bottom: 0.5rem;">Community Search</h4>
+                <p style="color: var(--text-muted);">Users and detectives search and report sightings</p>
+            </div>
+            
+            <div class="text-center" style="padding: 2rem;">
+                <div style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem; font-weight: 800;">4</div>
+                <h4 style="margin-bottom: 0.5rem;">Reunion</h4>
+                <p style="color: var(--text-muted);">Match found! Family reunited through verified connections</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section" style="background: var(--accent-black); color: white; text-align: center;">
+    <div class="container">
+        <h2 style="color: white; margin-bottom: 1rem;">Ready to Make a Difference?</h2>
+        <p style="color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto 2rem;">
+            Join our community of volunteers, detectives, and families working together to bring people home.
+        </p>
+        <div class="hero-buttons">
+            <a href="{% url 'register' %}" class="btn btn-lg" style="background: white; color: black;">Join Now</a>
+            <a href="{% url 'apply_detective' %}" class="btn btn-lg btn-outline" style="border-color: white; color: white;">Become a Detective</a>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Blogs -->
+{% if blogs %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Latest from Our Blog</h2>
+            <p class="section-subtitle">Safety tips, success stories, and important updates</p>
+        </div>
+        
+        <div class="grid grid-3">
+            {% for blog in blogs %}
+                <article class="card">
+                    <img src="{{ blog.cover_image.url }}" alt="{{ blog.title }}" class="card-image" loading="lazy">
+                    <div class="card-body">
+                        <span class="badge" style="margin-bottom: 0.75rem;">{{ blog.get_category_display }}</span>
+                        <h3 class="card-title">{{ blog.title }}</h3>
+                        <p class="card-text">{{ blog.content|truncatewords:15 }}</p>
+                        <div class="card-meta">
+                            <span>By {{ blog.author.user.username }}</span>
+                            <span>{{ blog.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <a href="{% url 'blog_detail' blog.slug %}" class="btn btn-sm btn-outline" style="width: 100%;">Read More</a>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
