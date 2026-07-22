@@ -1,0 +1,54 @@
+{% extends 'lostfound/base.html' %}
+
+{% block title %}Register - LOSTFOUND{% endblock %}
+
+{% block content %}
+<section class="hero" style="min-height: 80vh; padding-top: 6rem;">
+    <div class="container-narrow">
+        <div class="card" style="max-width: 500px; margin: 0 auto; padding: 2rem;">
+            <div class="text-center mb-3">
+                <h2>Create Account</h2>
+                <p style="color: var(--text-muted);">Join the LOSTFOUND community</p>
+            </div>
+            
+            <form method="POST" action="{% url 'register' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" name="email" id="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone (Optional)</label>
+                    <input type="tel" name="phone" id="phone" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" name="password" id="password" class="form-control" required minlength="8">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">Confirm Password</label>
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+            </form>
+            
+            <div class="text-center mt-3">
+                <p style="color: var(--text-muted);">
+                    Already have an account? 
+                    <a href="{% url 'login' %}" style="color: var(--accent-black); font-weight: 600;">Sign in here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
