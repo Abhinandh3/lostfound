@@ -1,0 +1,86 @@
+{% extends 'lostfound/base.html' %}
+
+{% block title %}Dashboard - LOSTFOUND{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h1>My Dashboard</h1>
+            <p style="color: var(--text-muted);">Welcome back, {{ user.username }}!</p>
+        </div>
+        
+        <div class="grid grid-3 mb-4">
+            <div class="card" style="padding: 2rem; text-align: center;">
+                <h3 style="font-size: 2.5rem; color: var(--accent-black);">{{ profile.cases_posted }}</h3>
+                <p style="color: var(--text-muted);">Cases Posted</p>
+            </div>
+            <div class="card" style="padding: 2rem; text-align: center;">
+                <h3 style="font-size: 2.5rem; color: var(--accent-black);">{{ profile.cases_solved }}</h3>
+                <p style="color: var(--text-muted);">Cases Solved</p>
+            </div>
+            <div class="card" style="padding: 2rem; text-align: center;">
+                <h3 style="font-size: 2.5rem; color: var(--accent-black);">${{ profile.total_reward_paid }}</h3>
+                <p style="color: var(--text-muted);">Total Reward Paid</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-2">
+            <div>
+                <h2 style="margin-bottom: 1.5rem;">My Cases</h2>
+                {% if cases %}
+                    {% for case in cases %}
+                        <article class="card mb-3" style="display: flex; gap: 1rem; padding: 1rem;">
+                            {% with primary_image=case.images.first %}
+                                {% if primary_image %}
+                                    <img src="{{ primary_image.image.url }}" alt="{{ case.title }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: var(--radius-md);">
+                                {% endif %}
+                            {% endwith %}
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <span class="badge badge-{{ case.case_type|lower }}">{{ case.case_type }}</span>
+                                        <h4 style="margin: 0.5rem 0;">{{ case.title }}</h4>
+                                        <p style="color: var(--text-muted); font-size: 0.9rem;">{{ case.last_seen_location }}</p>
+                                    </div>
+                                    <span class="badge">{{ case.status }}</span>
+                                </div>
+                                <a href="{% url 'case_detail' case.pk %}" class="btn btn-sm btn-outline mt-2">View Details</a>
+                            </div>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No cases posted yet.</p>
+                        <a href="{% url 'create_case' %}" class="btn btn-primary mt-2">Create Your First Case</a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div>
+                <h2 style="margin-bottom: 1.5rem;">Recent Notifications</h2>
+                {% if notifications %}
+                    {% for notification in notifications %}
+                        <div class="card mb-2" style="padding: 1rem;">
+                            <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">{{ notification.title }}</h4>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">{{ notification.message }}</p>
+                            <small style="color: var(--text-light);">{{ notification.created_at|date:"M d, Y H:i" }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No new notifications</p>
+                    </div>
+                {% endif %}
+                
+                {% if profile.is_detective %}
+                    <div class="mt-4">
+                        <h2 style="margin-bottom: 1.5rem;">Detective Tools</h2>
+                        <a href="{% url 'detective_dashboard' %}" class="btn btn-primary" style="width: 100%;">Go to Detective Dashboard</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

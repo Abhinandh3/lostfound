@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LOSTFOUND - AI-Powered Missing Person & Pet Locator{% endblock %}</title>
+    <meta name="description" content="AI-powered platform to locate missing family members and pets using advanced computer vision">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="nav">
+            <a href="{% url 'home' %}" class="logo">LOSTFOUND</a>
+            
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}" class="nav-link">Home</a></li>
+                <li><a href="{% url 'cases_list' %}" class="nav-link">Cases</a></li>
+                <li><a href="{% url 'map' %}" class="nav-link">Map</a></li>
+                <li><a href="{% url 'ai_search' %}" class="nav-link">AI Search</a></li>
+                <li><a href="{% url 'blog_list' %}" class="nav-link">Blog</a></li>
+                
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a></li>
+                    <li><a href="{% url 'profile' %}" class="nav-link">Profile</a></li>
+                    <li><a href="{% url 'logout' %}" class="btn btn-sm btn-secondary">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="nav-link">Login</a></li>
+                    <li><a href="{% url 'register' %}" class="btn btn-sm btn-primary">Sign Up</a></li>
+                {% endif %}
+            </ul>
+            
+            <div class="theme-toggle">
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast">
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="{% url 'home' %}" class="footer-brand">LOSTFOUND</a>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        AI-powered platform dedicated to reuniting families with their missing loved ones and pets.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'cases_list' %}">Browse Cases</a></li>
+                        <li><a href="{% url 'map' %}">Interactive Map</a></li>
+                        <li><a href="{% url 'ai_search' %}">AI Visual Search</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Account</h4>
+                    <ul class="footer-links">
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                            <li><a href="{% url 'profile' %}">Profile</a></li>
+                            <li><a href="{% url 'logout' %}">Logout</a></li>
+                        {% else %}
+                            <li><a href="{% url 'login' %}">Login</a></li>
+                            <li><a href="{% url 'register' %}">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@lostfound.com">support@lostfound.com</a></li>
+                        <li><a href="tel:+1234567890">+1 (234) 567-890</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; {% now "Y" %} LOSTFOUND. All rights reserved. Built with ❤️ using Django & AI.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Theme Toggle Script -->
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        htmlElement.setAttribute('data-theme', savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Auto-hide toasts after 5 seconds
+        setTimeout(() => {
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach(toast => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            });
+        }, 5000);
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
